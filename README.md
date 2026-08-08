@@ -4,6 +4,21 @@ A single-file, offline-first app for slowing down at meals: photograph the
 plate, run a timer while you eat, then rate portion size, when you stopped,
 and how well you chewed. Everything is tracked locally to build a streak.
 
+<table>
+  <tr>
+    <td><img src="pics/1.png" width="200"/></td>
+    <td><img src="pics/2.png" width="200"/></td>
+    <td><img src="pics/3.png" width="200"/></td>
+    <td><img src="pics/4.png" width="200"/></td>
+  </tr>
+  <tr>
+    <td align="center">Caption 1</td>
+    <td align="center">Caption 2</td>
+    <td align="center">Caption 3</td>
+    <td align="center">Caption 3</td>
+  </tr>
+</table>
+
 **No account, no server, no network calls.** The whole app is one HTML file.
 Your meal photos, ratings, and notes are stored only in your browser's local
 storage on your own device and are never uploaded anywhere.

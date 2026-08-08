@@ -1,7 +1,7 @@
 # Mindful Meals
 
 A single-file, offline-first app for slowing down at meals: photograph the
-plate, run a timer while you eat, then rate portion size, when you stopped,
+plate, then rate portion size, run a timer while you eat, when you stopped,
 and how well you chewed. Everything is tracked locally to build a streak.
 
 <table>

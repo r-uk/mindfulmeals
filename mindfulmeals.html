@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5f8d76">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Mindful Meals</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%235f8d76'/%3E%3Ccircle cx='50' cy='50' r='26' fill='none' stroke='%23fff' stroke-width='7'/%3E%3Cpath d='M50 32 L50 50 L62 58' stroke='%23fff' stroke-width='7' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --bg:#faf8f5; --surface:#ffffff; --surface-2:#f2efe9; --line:#e3ded4;
+  --text:#2b322e; --muted:#79837c; --faint:#a3aca5;
+  --brand:#5f8d76; --brand-soft:#e6efe9; --brand-deep:#3f6a55;
+  --warn:#b98430; --warn-soft:#f7eedd;
+  --bad:#b0574d; --bad-soft:#f6e5e2;
+  --shadow:0 1px 2px rgba(40,50,45,.06), 0 6px 20px rgba(40,50,45,.06);
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#161a18; --surface:#1e2321; --surface-2:#262c29; --line:#333a36;
+    --text:#e8ebe8; --muted:#9aa49d; --faint:#6d766f;
+    --brand:#7fb096; --brand-soft:#23342c; --brand-deep:#9ccbb1;
+    --warn:#d5a45f; --warn-soft:#39301f;
+    --bad:#d78078; --bad-soft:#3a2725;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  }
+  .hero{background:linear-gradient(160deg,#2f5644 0%,#1f3b30 100%) !important}
+  .hero .n,.hero .lbl,.hero .note{color:#eef5f0}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+}
+#app{max-width:560px;margin:0 auto;padding:0 16px}
+h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+.hidden{display:none !important}
+
+header.top{padding:calc(18px + env(safe-area-inset-top)) 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+header.top h1{font-size:20px}
+header.top .sub{color:var(--muted);font-size:13px;white-space:nowrap}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card.flat{box-shadow:none}
+.card h3{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:12px}
+
+.hero{background:linear-gradient(160deg,var(--brand) 0%,var(--brand-deep) 100%);color:#fff;border:none;text-align:center;padding:26px 18px 22px}
+.hero .n{font-size:64px;line-height:1;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.hero .lbl{font-size:15px;opacity:.92;margin-top:6px}
+.hero .note{font-size:13px;opacity:.78;margin-top:12px;max-width:34ch;margin-left:auto;margin-right:auto}
+.pips{display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.pip{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.28)}
+.pip.on{background:#fff}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 10px;text-align:center}
+.stat .v{font-size:22px;font-weight:680;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .k{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.25}
+
+.btn{display:block;width:100%;padding:16px;border-radius:14px;background:var(--brand);color:#fff;font-weight:620;font-size:17px;text-align:center;transition:transform .08s ease, filter .15s ease}
+.btn:active{transform:scale(.985);filter:brightness(.95)}
+.btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--line);font-weight:560;font-size:15px;padding:13px}
+.btn.quiet{background:none;color:var(--muted);font-size:14px;padding:10px;font-weight:500}
+.btn.danger{background:var(--bad-soft);color:var(--bad);border:1px solid transparent}
+.btn-row{display:flex;gap:10px}
+.btn-row .btn{flex:1}
+
+/* ---------- sliders ---------- */
+.sl{margin-bottom:26px}
+.sl:last-child{margin-bottom:6px}
+.sl .st{font-size:16px;font-weight:620;margin-bottom:2px}
+.sl .sh{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.4}
+.sl .out{
+  text-align:center;font-size:15px;font-weight:600;padding:10px 12px;border-radius:11px;
+  margin-bottom:16px;background:var(--surface-2);color:var(--muted);
+  transition:background .15s,color .15s;line-height:1.3
+}
+.sl .out b{font-variant-numeric:tabular-nums}
+.sl .out[data-tone="good"]{background:var(--brand-soft);color:var(--brand-deep)}
+.sl .out[data-tone="warn"]{background:var(--warn-soft);color:var(--warn)}
+.sl .out[data-tone="bad"]{background:var(--bad-soft);color:var(--bad)}
+.track{position:relative;height:22px;display:flex;align-items:center}
+.zones{position:absolute;left:0;right:0;height:6px;border-radius:4px;overflow:hidden;display:flex;pointer-events:none}
+.zones span{height:100%}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;
+  outline:none;margin:0;cursor:pointer;position:relative;z-index:2
+}
+input[type=range]::-webkit-slider-runnable-track{height:6px;background:transparent;border-radius:4px}
+input[type=range]::-moz-range-track{height:6px;background:transparent;border-radius:4px}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--surface);border:3.5px solid var(--thumb,var(--faint));
+  box-shadow:0 1px 4px rgba(0,0,0,.28);margin-top:-11px
+}
+input[type=range]::-moz-range-thumb{
+  width:28px;height:28px;border-radius:50%;background:var(--surface);
+  border:3.5px solid var(--thumb,var(--faint));box-shadow:0 1px 4px rgba(0,0,0,.28)
+}
+.ticks{display:flex;justify-content:space-between;padding:0 12px;margin-top:2px}
+.ticks i{width:2px;height:5px;background:var(--line);border-radius:1px}
+.anchors{display:flex;justify-content:space-between;margin-top:7px;font-size:11px;color:var(--faint)}
+.anchors span:nth-child(2){text-align:center}
+.anchors span:last-child{text-align:right}
+
+/* ---------- chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chip{
+  padding:9px 14px;border-radius:22px;border:1.5px solid var(--line);background:var(--surface);
+  font-size:14px;font-weight:530;transition:.12s
+}
+.chip[data-sel="1"]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-deep)}
+.chip.bad[data-sel="1"]{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:20px;background:var(--surface-2);font-size:13px}
+.tag.newf{background:var(--warn-soft);color:var(--warn);font-weight:560}
+.tag b{cursor:pointer;opacity:.55;font-weight:700}
+
+.photo-well{border:2px dashed var(--line);border-radius:var(--r);background:var(--surface-2);min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);text-align:center;padding:24px;overflow:hidden}
+.photo-well img{width:100%;height:auto;display:block;border-radius:10px}
+.photo-well .ic{font-size:34px;line-height:1}
+.thumb{width:56px;height:56px;border-radius:11px;object-fit:cover;flex:none;background:var(--surface-2)}
+.thumb.none{display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:19px;opacity:.65}
+
+.timer-wrap{text-align:center;padding:14px 0 4px}
+.ring{position:relative;width:230px;height:230px;margin:0 auto}
+.ring svg{transform:rotate(-90deg);display:block}
+.ring .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .t{font-size:46px;font-weight:680;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ring .st{font-size:13px;color:var(--muted);margin-top:2px}
+.cue{background:var(--brand-soft);border-radius:14px;padding:16px;margin:20px 0 4px;font-size:16px;line-height:1.45;text-align:center;color:var(--brand-deep);min-height:76px;display:flex;align-items:center;justify-content:center}
+.cue.pulse{animation:pulse .5s ease}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+
+.rules{list-style:none;padding:0;margin:0}
+.rules li{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.4}
+.rules li:last-child{border-bottom:none}
+.rules .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--brand-soft);color:var(--brand-deep);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px}
+
+.meal{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line);width:100%;text-align:left;background:none}
+.meal:last-child{border-bottom:none}
+.meal .body{flex:1;min-width:0}
+.meal .when{font-size:14px;font-weight:580}
+.marks{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.mark{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.mark.g{background:var(--brand-soft);color:var(--brand-deep)}
+.mark.w{background:var(--warn-soft);color:var(--warn)}
+.mark.b{background:var(--bad-soft);color:var(--bad)}
+.verdict{flex:none;font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;margin-top:2px}
+.verdict.g{background:var(--brand-soft);color:var(--brand-deep)}
+.verdict.b{background:var(--bad-soft);color:var(--bad)}
+.chev{flex:none;color:var(--faint);font-size:18px;margin-top:14px}
+
+.bars{display:flex;align-items:flex-end;gap:4px;height:64px;margin-top:4px}
+.bars .b{flex:1;border-radius:3px 3px 0 0;background:var(--surface-2);min-height:4px}
+.bars .b.ok{background:var(--brand)}
+.bars .b.no{background:var(--bad);opacity:.5}
+.brk .row{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:14px}
+.brk .row .lab{flex:1;min-width:0}
+.brk .row .track2{flex:none;width:96px;height:7px;border-radius:4px;background:var(--surface-2);overflow:hidden;display:block}
+.brk .row .fill{display:block;height:100%;min-width:3px;background:var(--brand);border-radius:4px}
+.brk .row .fill.warnf{background:var(--bad)}
+.brk .row .pc{flex:none;width:44px;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+
+.field{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.field:last-of-type{border-bottom:none}
+.field .fl{font-size:15px}
+.field .fh{font-size:12.5px;color:var(--muted);margin-top:2px}
+select,input[type=number],input[type=text]{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit;font-size:15px;color:var(--text)}
+select{min-width:96px}
+input[type=text]{width:100%}
+textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;font-size:15px;color:var(--text);resize:vertical;min-height:74px}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:color-mix(in srgb, var(--surface) 88%, transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 0 calc(6px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+nav.tabs .in{display:flex;width:100%;max-width:560px}
+nav.tabs button{flex:1;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--faint);font-size:11px;font-weight:560}
+nav.tabs button svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[data-on="1"]{color:var(--brand)}
+
+.empty{text-align:center;color:var(--muted);padding:36px 20px;font-size:15px;line-height:1.5}
+.tiny{font-size:12.5px;color:var(--faint);line-height:1.5}
+.banner{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.45;margin-bottom:14px}
+.step-dots{display:flex;gap:6px;justify-content:center;margin:2px 0 16px}
+.step-dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.step-dots i.on{background:var(--brand);width:18px;border-radius:3px}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:14px;padding:6px 0}
+.editbtn{margin-left:10px;padding:5px 14px;border-radius:20px;border:1.5px solid var(--brand);color:var(--brand-deep);background:var(--brand-soft);font-size:13px;font-weight:640}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom));background:var(--text);color:var(--bg);padding:11px 18px;border-radius:24px;font-size:14px;z-index:99;box-shadow:var(--shadow);opacity:0;transition:opacity .25s, transform .25s;pointer-events:none;max-width:88vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+</style>
+</head>
+<body>
+
+<div id="app"><div id="screen"></div></div>
+
+<nav class="tabs" id="tabs">
+  <div class="in">
+    <button data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg><span>Today</span></button>
+    <button data-tab="history"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg><span>History</span></button>
+    <button data-tab="stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Patterns</span></button>
+    <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg><span>Settings</span></button>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   STORAGE — IndexedDB, falling back to localStorage, then memory
+   ============================================================ */
+const Store = (() => {
+  const DB="mindfulMeals", VER=1, ST="kv";
+  let db=null, mode="memory", mem={};
+
+  function openDB(){
+    return new Promise(res=>{
+      if(!("indexedDB" in window)) return res(null);
+      let req;
+      try{ req = indexedDB.open(DB, VER); }catch(e){ return res(null); }
+      req.onupgradeneeded = () => { const d=req.result; if(!d.objectStoreNames.contains(ST)) d.createObjectStore(ST); };
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => res(null);
+      req.onblocked = () => res(null);
+      setTimeout(()=>res(req.result||null), 2500);
+    });
+  }
+  async function init(){
+    db = await openDB();
+    if(db){ mode="idb"; return mode; }
+    try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); mode="local"; }
+    catch(e){ mode="memory"; }
+    return mode;
+  }
+  function get(key){
+    if(mode==="idb") return new Promise(res=>{
+      try{ const tx=db.transaction(ST,"readonly").objectStore(ST).get(key);
+           tx.onsuccess=()=>res(tx.result===undefined?null:tx.result); tx.onerror=()=>res(null);
+      }catch(e){ res(null); }
+    });
+    if(mode==="local"){
+      try{ const v=localStorage.getItem(DB+":"+key); return Promise.resolve(v?JSON.parse(v):null); }
+      catch(e){ return Promise.resolve(null); }
+    }
+    return Promise.resolve(key in mem ? mem[key] : null);
+  }
+  function set(key,val){
+    if(mode==="idb") return new Promise(res=>{
+      try{ const tx=db.transaction(ST,"readwrite").objectStore(ST).put(val,key);
+           tx.onsuccess=()=>res(true); tx.onerror=()=>res(false);
+      }catch(e){ res(false); }
+    });
+    if(mode==="local"){
+      try{ localStorage.setItem(DB+":"+key, JSON.stringify(val)); return Promise.resolve(true); }
+      catch(e){
+        if(key==="meals" && Array.isArray(val)){
+          try{
+            localStorage.setItem(DB+":"+key, JSON.stringify(val.map(m=>({...m, photo:null}))));
+            toast("Storage full — photos dropped, ratings kept");
+            return Promise.resolve(true);
+          }catch(e2){}
+        }
+        return Promise.resolve(false);
+      }
+    }
+    mem[key]=val; return Promise.resolve(true);
+  }
+  return { init, get, set, get mode(){return mode;} };
+})();
+
+/* ============================================================
+   MODEL
+   ============================================================ */
+const DEFAULTS = { targetMin:20, threshold:5, dayStartHour:4, showSetup:true };
+let meals = [], cfg = {...DEFAULTS};
+let tab="home", draft=null, detailId=null, detailEdit=false, timerHandle=null;
+
+/* 7-point scales. Higher is always better on the two scored ones,
+   which is what makes the "5 of 7 or above" rule readable. */
+const SCALES = {
+  portion: {
+    title:"The portion",
+    hint:"Look at the plate in front of you. Take some off now if this is more than you need.",
+    scored:false,
+    anchors:["too little","right amount","too much"],
+    labels:["Too little","Good, smaller side","Good, right amount","Good, fuller side","A bit too much","Too much","Way too much"],
+    tones:["bad","good","good","good","warn","bad","bad"]
+  },
+  fullness: {
+    title:"Stopping when full",
+    hint:"The moment you first noticed fullness — how far past it did you go?",
+    scored:true,
+    anchors:["ate well past","","stopped at the hint"],
+    labels:["Ate until it hurt","Ate to very full","Uncomfortably past","Noticeably past","A few bites past","Stopped soon after noticing","Stopped right at the first hint"]
+  },
+  chewing: {
+    title:"Pace and chewing",
+    hint:"More thorough chewing is never a problem — this one runs straight.",
+    scored:true,
+    anchors:["rushed","moderate","fully mindful"],
+    labels:["Extremely rushed","Rushed","A bit fast","Moderate","Slow, deliberate","Very slow","Fully mindful, unhurried"]
+  }
+};
+const SCALE_KEYS = ["portion","fullness","chewing"];
+/** Only stopping-when-full and pace gate the streak. Portion is tracked, never scored. */
+const STREAK_KEYS = ["fullness","chewing"];
+function passes(key, v){
+  if(typeof v!=="number") return false;
+  return SCALES[key].scored ? v >= cfg.threshold : SCALES[key].tones[v-1]==="good";
+}
+
+const COMPANY = [
+  {v:"focused",    t:"Without distraction"},
+  {v:"others",     t:"With others"},
+  {v:"distracted", t:"With distraction"}
+];
+const companyLabel = v => (COMPANY.find(c=>c.v===v)||{}).t || "—";
+const SYMPTOMS = [
+  {v:"reflux",    t:"Reflux"},
+  {v:"hungerpain",t:"Hunger pain"},
+  {v:"fullpain",  t:"Pain when full"},
+  {v:"other",     t:"Other"}
+];
+
+const CUES = [
+  "Put the fork down between bites.",
+  "Chew until the bite has no texture left.",
+  "Notice the taste. Is it still as good as bite one?",
+  "Shoulders down. Unclench your jaw.",
+  "No screen. Just the food and the room.",
+  "Breathe out slowly before the next bite.",
+  "How full are you right now, on a scale of one to ten?",
+  "There is no rush. The food is not going anywhere."
+];
+
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---- scoring -------------------------------------------------- */
+function toneFor(key, v){
+  const sc = SCALES[key];
+  if(!sc.scored) return sc.tones[v-1];
+  if(v >= cfg.threshold) return "good";
+  if(v === cfg.threshold-1) return "warn";
+  return "bad";
+}
+/** A meal counts only if every enabled criterion passes. */
+function isGood(m){
+  return STREAK_KEYS.every(k => passes(k, m.scores?.[k]));
+}
+function hasSymptoms(m){ return m.tolerance?.status === "bad"; }
+const sortedMeals = () => [...meals].sort((a,b)=>a.at-b.at);
+
+function currentStreak(){
+  const s=sortedMeals(); let n=0;
+  for(let i=s.length-1;i>=0;i--){ if(isGood(s[i])) n++; else break; }
+  return n;
+}
+function bestStreak(){
+  let best=0, run=0;
+  for(const m of sortedMeals()){ if(isGood(m)){ run++; if(run>best) best=run; } else run=0; }
+  return best;
+}
+function dayKey(ts){
+  const d=new Date(ts - cfg.dayStartHour*3600e3);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function todayMeals(){ const k=dayKey(Date.now()); return sortedMeals().filter(m=>dayKey(m.at)===k); }
+function last7Rate(){
+  const w = meals.filter(m => m.at >= Date.now()-7*86400e3);
+  return w.length ? Math.round(w.filter(isGood).length/w.length*100) : null;
+}
+
+/* ---- food / intolerance analysis ------------------------------- */
+const normFood = s => s.trim().toLowerCase().replace(/\s+/g," ");
+function foodStats(){
+  const map = new Map();
+  for(const m of meals){
+    const all = [...(m.foods||[]), ...(m.newFoods||[])];
+    const seen = new Set();
+    for(const raw of all){
+      const k = normFood(raw); if(!k || seen.has(k)) continue; seen.add(k);
+      if(!map.has(k)) map.set(k, {name:raw.trim(), meals:0, bad:0, isNew:false, lastAt:0});
+      const e = map.get(k);
+      e.meals++;
+      if(hasSymptoms(m)) e.bad++;
+      if((m.newFoods||[]).some(f=>normFood(f)===k)) e.isNew=true;
+      if(m.at > e.lastAt) e.lastAt = m.at;
+    }
+  }
+  return map;
+}
+function toleranceLogged(){ return meals.filter(m=>m.tolerance?.status).length; }
+
+/* ---- helpers --------------------------------------------------- */
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),2400);
+}
+const fmtDur = sec => Math.floor(sec/60)+":"+String(Math.floor(sec%60)).padStart(2,"0");
+function fmtWhen(ts){
+  const d=new Date(ts), now=Date.now();
+  const time=d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+  if(dayKey(ts)===dayKey(now)) return "Today, "+time;
+  if(dayKey(ts)===dayKey(now-86400e3)) return "Yesterday, "+time;
+  return d.toLocaleDateString([], {weekday:"short",day:"numeric",month:"short"})+", "+time;
+}
+function shrinkImage(file, maxPx=900, quality=.72){
+  return new Promise((resolve,reject)=>{
+    const fr=new FileReader();
+    fr.onerror=()=>reject(new Error("read failed"));
+    fr.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error("decode failed"));
+      img.onload=()=>{
+        let {width:w,height:h}=img;
+        const s=Math.min(1,maxPx/Math.max(w,h)); w=Math.round(w*s); h=Math.round(h*s);
+        const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+        cv.getContext("2d").drawImage(img,0,0,w,h);
+        try{ resolve(cv.toDataURL("image/jpeg",quality)); }catch(e){ reject(e); }
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+function parseFoods(str){
+  return String(str||"").split(",").map(s=>s.trim()).filter(Boolean).slice(0,20);
+}
+
+/* ============================================================
+   SLIDER COMPONENT
+   ============================================================ */
+function sliderHtml(key, value, touched, hintOverride){
+  const sc = SCALES[key];
+  const hint = hintOverride ?? sc.hint;
+  // zone boundaries sit halfway between stops: stop i is at (i-1)/6 of the width
+  let zones;
+  if(sc.scored){
+    const cut = ((cfg.threshold-1)-0.5)/6*100;
+    zones = `<span style="width:${cut}%;background:linear-gradient(90deg,var(--bad),var(--warn))"></span>
+             <span style="width:${100-cut}%;background:var(--brand)"></span>`;
+  } else {
+    zones = `<span style="width:8.33%;background:var(--bad)"></span>
+             <span style="width:50%;background:var(--brand)"></span>
+             <span style="width:41.67%;background:linear-gradient(90deg,var(--warn),var(--bad))"></span>`;
+  }
+  return `
+    <div class="sl" data-key="${key}">
+      <div class="st">${esc(sc.title)}</div>
+      <div class="sh">${esc(hint)}</div>
+      <div class="out" data-out></div>
+      <div class="track">
+        <div class="zones">${zones}</div>
+        <input type="range" min="1" max="7" step="1" value="${value}" data-touched="${touched?1:0}" aria-label="${esc(sc.title)}">
+      </div>
+      <div class="ticks">${"<i></i>".repeat(7)}</div>
+      <div class="anchors"><span>${esc(sc.anchors[0])}</span><span>${esc(sc.anchors[1])}</span><span>${esc(sc.anchors[2])}</span></div>
+    </div>`;
+}
+function wireSliders(root, onChange){
+  root.querySelectorAll(".sl").forEach(el=>{
+    const key=el.dataset.key, input=el.querySelector("input"), out=el.querySelector("[data-out]");
+    const paint=()=>{
+      const v=Number(input.value);
+      if(input.dataset.touched!=="1"){
+        out.textContent="Slide to rate";
+        out.removeAttribute("data-tone");
+        input.style.setProperty("--thumb","var(--faint)");
+        return;
+      }
+      const tone=toneFor(key,v);
+      out.innerHTML=`<b>${v}/7</b> — ${esc(SCALES[key].labels[v-1])}`;
+      out.setAttribute("data-tone",tone);
+      input.style.setProperty("--thumb", tone==="good"?"var(--brand)":tone==="warn"?"var(--warn)":"var(--bad)");
+    };
+    input.addEventListener("input",()=>{ input.dataset.touched="1"; paint(); onChange&&onChange(key,Number(input.value)); });
+    paint();
+  });
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const screen = () => document.getElementById("screen");
+
+function render(){
+  const overlay = !!draft || !!detailId;
+  document.querySelectorAll("nav.tabs button").forEach(b => b.dataset.on = (b.dataset.tab===tab && !overlay) ? "1":"0");
+  document.getElementById("tabs").classList.toggle("hidden", overlay);
+  if(draft) return renderFlow();
+  if(detailId) return renderDetail();
+  if(tab==="home") return renderHome();
+  if(tab==="history") return renderHistory();
+  if(tab==="stats") return renderStats();
+  if(tab==="settings") return renderSettings();
+}
+
+/* ---------- HOME ---------- */
+function renderHome(){
+  const streak=currentStreak(), best=bestStreak(), rate=last7Rate(), today=todayMeals();
+  const recent=sortedMeals().slice(-8);
+  let note;
+  if(!meals.length) note="Log your first meal and the streak starts here.";
+  else if(streak===0) note="Streak reset. The next meal is the only one that matters.";
+  else if(streak===1) note="One meal where you stopped in time and kept the pace.";
+  else note=`${streak} meals in a row where you stopped in time and kept the pace.`;
+
+  screen().innerHTML = `
+    <header class="top"><h1>Mindful Meals</h1><span class="sub">${today.length} logged today</span></header>
+    <div class="card hero">
+      <div class="n">${streak}</div><div class="lbl">meal streak</div>
+      ${recent.length?`<div class="pips">${recent.map(m=>`<i class="pip ${isGood(m)?"on":""}"></i>`).join("")}</div>`:""}
+      <div class="note">${esc(note)}</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="v">${best}</div><div class="k">best streak</div></div>
+      <div class="stat"><div class="v">${rate===null?"—":rate+"%"}</div><div class="k">good, last 7 days</div></div>
+      <div class="stat"><div class="v">${meals.length}</div><div class="k">meals logged</div></div>
+    </div>
+    <button class="btn" id="start">Start a meal</button>
+    <button class="btn quiet" id="quick">Log a meal I already ate</button>
+    ${today.length ? `<div class="card" style="margin-top:14px"><h3>Today</h3>${today.map(mealRow).join("")}</div>`
+      : `<div class="card flat" style="margin-top:14px"><h3>The streak rule</h3>
+          <p style="margin:0;font-size:14.5px;line-height:1.5">A meal counts when <b>stopping when full</b> and <b>pace</b> both reach ${cfg.threshold} of 7. Portion is still tracked, but it won't break your streak.</p></div>`}
+  `;
+  document.getElementById("start").onclick = () => beginDraft(false);
+  document.getElementById("quick").onclick = () => beginDraft(true);
+  wireMealRows();
+}
+
+function mealRow(m){
+  const marks = SCALE_KEYS.map(k=>{
+    const v=m.scores?.[k];
+    if(typeof v!=="number") return "";
+    const short={portion:"Portion",fullness:"Stopped",chewing:"Pace"}[k];
+    const tone=toneFor(k,v);
+    return `<span class="mark ${tone==="good"?"g":tone==="warn"?"w":"b"}">${short} ${v}</span>`;
+  }).join("");
+  const sym = hasSymptoms(m) ? `<span class="mark b">symptoms</span>` : "";
+  const nf = (m.newFoods||[]).length ? `<span class="mark w">new food</span>` : "";
+  const dur = m.durationSec ? ` · ${Math.round(m.durationSec/60)} min` : "";
+  return `
+    <button class="meal" data-open="${m.id}">
+      ${m.photo?`<img class="thumb" src="${m.photo}" alt="">`:`<div class="thumb none">🍽</div>`}
+      <div class="body">
+        <div class="when">${esc(fmtWhen(m.at))}${dur}</div>
+        <div class="marks">${marks}${nf}${sym}</div>
+      </div>
+      <span class="verdict ${isGood(m)?"g":"b"}">${isGood(m)?"counts":"missed"}</span>
+      <span class="chev">›</span>
+    </button>`;
+}
+function wireMealRows(){
+  screen().querySelectorAll("[data-open]").forEach(b=>{
+    b.onclick = () => { detailId=b.dataset.open; detailEdit=false; window.scrollTo(0,0); render(); };
+  });
+}
+
+/* ---------- FLOW ---------- */
+function beginDraft(skipTimer){
+  draft = { id:uid(), at:Date.now(), photo:null, scores:{}, company:null, note:"",
+            foods:[], newFoods:[], durationSec:null, startedAt:null,
+            tolerance:{status:null,symptoms:[],note:""},
+            step: skipTimer?"rate":"photo", skipTimer };
+  render();
+}
+function cancelDraft(){ clearInterval(timerHandle); timerHandle=null; draft=null; render(); }
+
+function renderFlow(){
+  const steps = draft.skipTimer ? ["rate"]
+              : cfg.showSetup ? ["photo","prep","timer","rate"]
+              : ["photo","timer","rate"];
+  const i = steps.indexOf(draft.step);
+  const dots = draft.step==="done" ? "" : `<div class="step-dots">${steps.map((s,j)=>`<i class="${j<=i?"on":""}"></i>`).join("")}</div>`;
+  if(draft.step==="photo") return stepPhoto(dots);
+  if(draft.step==="prep")  return stepPrep(dots);
+  if(draft.step==="timer") return stepTimer();
+  if(draft.step==="rate")  return stepRate(dots);
+  if(draft.step==="done")  return stepDone();
+}
+
+function stepPhoto(dots){
+  screen().innerHTML = `
+    <header class="top"><h1>Before you eat</h1></header>${dots}
+    <div class="card">
+      <div class="sl" style="margin-bottom:14px">
+        <div class="st">Photograph the plate</div>
+        <div class="sh">Not for the record — so you actually look at the portion before the first bite.</div>
+      </div>
+      <label class="photo-well" id="well" for="file">
+        ${draft.photo?`<img src="${draft.photo}" alt="Your plate">`:`<div class="ic">📷</div><div>Tap to open the camera</div>`}
+      </label>
+      <input type="file" id="file" accept="image/*" capture="environment" class="hidden">
+      <div id="portionwrap" style="margin-top:20px;padding-top:18px;border-top:1px solid var(--line)">
+        ${sliderHtml("portion", draft.scores.portion ?? 4, typeof draft.scores.portion==="number")}
+      </div>
+      <p class="tiny" style="margin:-2px 0 0">Judging this now, while you can still take some off, is the whole point. You can correct it afterwards if it turns out you misjudged.</p>
+    </div>
+    <button class="btn" id="next">${cfg.showSetup?"Continue":"Start eating"}</button>
+    <button class="btn quiet" id="cancel">Cancel</button>
+    <p class="tiny" style="text-align:center;margin-top:4px">Photos stay on this device.</p>`;
+
+  wireSliders(document.getElementById("portionwrap"), (k,v)=>{ draft.scores[k]=v; });
+
+  document.getElementById("file").onchange = async e => {
+    const f=e.target.files&&e.target.files[0]; if(!f) return;
+    document.getElementById("well").innerHTML=`<div class="ic">⏳</div><div>Processing…</div>`;
+    try{ draft.photo = await shrinkImage(f); }catch(err){ toast("Couldn't read that image"); draft.photo=null; }
+    render();
+  };
+  document.getElementById("next").onclick = () => {
+    if(typeof draft.scores.portion!=="number"){
+      toast("Rate the portion before you start");
+      const el=screen().querySelector('.sl[data-key="portion"]');
+      if(el) el.scrollIntoView({behavior:"smooth",block:"center"});
+      return;
+    }
+    if(cfg.showSetup){ draft.step="prep"; }
+    else { draft.startedAt=Date.now(); draft.at=Date.now(); draft.step="timer"; }
+    render();
+  };
+  document.getElementById("cancel").onclick = cancelDraft;
+}
+
+function stepPrep(dots){
+  screen().innerHTML = `
+    <header class="top"><h1>Set up</h1></header>${dots}
+    <div class="card"><ul class="rules">
+      <li><span class="n">1</span><span><b>Put the phone face down</b> once the timer starts.</span></li>
+      <li><span class="n">2</span><span><b>Fork down between bites.</b> Pick it up again only after you've swallowed.</span></li>
+      <li><span class="n">3</span><span><b>Chew past the point it feels done.</b> Aim for no texture left.</span></li>
+      <li><span class="n">4</span><span><b>At the first hint of full, stop.</b> Leftovers keep. An inflamed stomach doesn't.</span></li>
+    </ul></div>
+    <button class="btn" id="go">Start eating</button>
+    <button class="btn quiet" id="back">Back</button>`;
+  document.getElementById("go").onclick = () => { draft.startedAt=Date.now(); draft.at=Date.now(); draft.step="timer"; render(); };
+  document.getElementById("back").onclick = () => { draft.step="photo"; render(); };
+}
+
+function stepTimer(){
+  const target=cfg.targetMin*60;
+  screen().innerHTML = `
+    <header class="top"><h1>Eating</h1></header>
+    <div class="card"><div class="timer-wrap"><div class="ring">
+      <svg width="230" height="230" viewBox="0 0 230 230">
+        <circle cx="115" cy="115" r="102" stroke="var(--surface-2)" stroke-width="14" fill="none"/>
+        <circle id="arc" cx="115" cy="115" r="102" stroke="var(--brand)" stroke-width="14" fill="none" stroke-linecap="round" stroke-dasharray="641" stroke-dashoffset="641"/>
+      </svg>
+      <div class="inner"><div class="t" id="elapsed">0:00</div><div class="st" id="sub">of ~${cfg.targetMin} min</div></div>
+    </div></div>
+    <div class="cue" id="cue">Take the first bite. Chew it twice as long as feels natural.</div></div>
+    <button class="btn" id="done">I'm finished eating</button>
+    <button class="btn quiet" id="abandon">Discard this meal</button>`;
+  const arc=document.getElementById("arc"), el=document.getElementById("elapsed"),
+        sub=document.getElementById("sub"), cue=document.getElementById("cue");
+  let lastCue=-1, halfShown=false;
+  const tick=()=>{
+    if(!draft||draft.step!=="timer") return;
+    const sec=Math.floor((Date.now()-draft.startedAt)/1000);
+    el.textContent=fmtDur(sec);
+    arc.style.strokeDashoffset=String(641*(1-Math.min(1,sec/target)));
+    if(sec>=target){ arc.setAttribute("stroke","var(--brand-deep)"); sub.textContent="past "+cfg.targetMin+" min — nicely paced"; }
+    const half=Math.floor(target/2);
+    if(!halfShown && sec>=half && sec<half+8){
+      halfShown=true; cue.textContent="Halfway. Put the fork down and check: how full are you already?";
+      cue.classList.remove("pulse"); void cue.offsetWidth; cue.classList.add("pulse");
+    } else {
+      const slot=Math.floor(sec/180);
+      if(slot!==lastCue && !(sec>=half&&sec<half+8)){
+        lastCue=slot; cue.textContent=CUES[slot%CUES.length];
+        cue.classList.remove("pulse"); void cue.offsetWidth; cue.classList.add("pulse");
+      }
+    }
+  };
+  clearInterval(timerHandle); timerHandle=setInterval(tick,1000); tick();
+  document.getElementById("done").onclick = () => {
+    clearInterval(timerHandle); timerHandle=null;
+    draft.durationSec=Math.floor((Date.now()-draft.startedAt)/1000);
+    draft.step="rate"; render();
+  };
+  document.getElementById("abandon").onclick = cancelDraft;
+}
+
+function stepRate(dots){
+  const dur=draft.durationSec;
+  const durLine = dur ? `<div class="banner">You ate for <b>${fmtDur(dur)}</b>${dur<cfg.targetMin*60*0.6?" — quicker than your target. Worth being honest about the pace below.":dur>=cfg.targetMin*60?" — that's a well-paced meal.":"."}</div>` : "";
+  // portion was already rated on the photo screen, so it only reappears on the quick-log path
+  const keys = draft.skipTimer ? SCALE_KEYS : ["fullness","chewing"];
+  const plated = (!draft.skipTimer && typeof draft.scores.portion==="number")
+    ? `<div class="card"><h3>What you plated</h3>
+        ${draft.photo?`<img src="${draft.photo}" style="width:100%;border-radius:11px;display:block;margin-bottom:12px" alt="">`:""}
+        <div class="field" style="border:none;padding:0">
+          <div><div class="fl">You rated the portion</div><div class="fh">Tap the meal in History later if this turned out wrong.</div></div>
+          <span class="mark ${toneFor("portion",draft.scores.portion)==="good"?"g":toneFor("portion",draft.scores.portion)==="warn"?"w":"b"}" style="font-size:13px;padding:5px 10px">${draft.scores.portion}/7</span>
+        </div></div>`
+    : (draft.photo?`<div class="card"><h3>What you plated</h3><img src="${draft.photo}" style="width:100%;border-radius:11px;display:block" alt=""></div>`:"");
+  screen().innerHTML = `
+    <header class="top"><h1>How did it go?</h1></header>${dots}${durLine}
+    ${plated}
+    <div class="card" id="sliders">
+      ${keys.map(k=>sliderHtml(k, draft.scores[k] ?? 4, typeof draft.scores[k]==="number")).join("")}
+    </div>
+    <div class="card">
+      <h3>Who were you with?</h3>
+      <div class="chips" id="company">
+        ${COMPANY.map(o=>`<button class="chip" data-v="${o.v}" data-sel="${draft.company===o.v?1:0}">${esc(o.t)}</button>`).join("")}
+      </div>
+    </div>
+    <div class="card">
+      <h3>What did you eat?</h3>
+      <input type="text" id="foods" placeholder="rice, chicken, steamed carrots" value="${esc((draft.foods||[]).join(", "))}">
+      <p class="tiny" style="margin:8px 0 16px">Separate with commas. Optional, but it's what makes the trigger-food list work.</p>
+      <h3>Anything new you haven't had since the gastritis?</h3>
+      <input type="text" id="newfoods" placeholder="e.g. tomato sauce" value="${esc((draft.newFoods||[]).join(", "))}">
+      <p class="tiny" style="margin:8px 0 0">Flagged so you can watch how these land over the next few meals.</p>
+    </div>
+    <div class="card"><h3>Note (optional)</h3>
+      <textarea id="note" placeholder="How your stomach feels, what made it hard…">${esc(draft.note)}</textarea></div>
+    <button class="btn" id="save">Save meal</button>
+    <button class="btn quiet" id="abandon">Discard this meal</button>`;
+
+  wireSliders(document.getElementById("sliders"), (key,v)=>{ draft.scores[key]=v; });
+  screen().querySelectorAll("#company .chip").forEach(b=>{
+    b.onclick = () => {
+      screen().querySelectorAll("#company .chip").forEach(x=>x.dataset.sel="0");
+      b.dataset.sel="1"; draft.company=b.dataset.v;
+    };
+  });
+  document.getElementById("abandon").onclick = cancelDraft;
+  document.getElementById("save").onclick = async () => {
+    draft.note=document.getElementById("note").value.trim();
+    draft.foods=parseFoods(document.getElementById("foods").value);
+    draft.newFoods=parseFoods(document.getElementById("newfoods").value);
+    const missing = keys.filter(k => typeof draft.scores[k]!=="number");
+    if(missing.length){
+      toast("Still to rate: "+SCALES[missing[0]].title.toLowerCase());
+      const el=screen().querySelector(`.sl[data-key="${missing[0]}"]`);
+      if(el) el.scrollIntoView({behavior:"smooth",block:"center"});
+      return;
+    }
+    const rec={...draft, v:2};
+    delete rec.step; delete rec.skipTimer; delete rec.startedAt;
+    meals.push(rec); await persist();
+    draft.step="done"; draft.saved=rec; render();
+  };
+}
+
+function stepDone(){
+  const m=draft.saved, good=isGood(m), streak=currentStreak();
+  const weak=STREAK_KEYS.filter(k=>!passes(k,m.scores[k]));
+  let head, body;
+  if(good){
+    head = streak===1 ? "That one counts." : `${streak} in a row.`;
+    body = streak>=5
+      ? "Five or more consecutive meals where you stopped in time and kept the pace. That's the pattern your stomach actually responds to."
+      : "You stopped in time and kept the pace.";
+  } else {
+    head="Logged.";
+    body = weak.length===1
+      ? `${SCALES[weak[0]].title} came in under ${cfg.threshold}. The other one held. One meal doesn't undo the week.`
+      : "Both stopping and pace came in under the mark this time. That's information, not failure — notice what was different about the setup.";
+  }
+  screen().innerHTML = `
+    <header class="top"><h1>${esc(head)}</h1></header>
+    <div class="card hero"><div class="n">${streak}</div><div class="lbl">meal streak</div><div class="note">${esc(body)}</div></div>
+    ${(m.newFoods||[]).length?`<div class="banner">You logged a new food: <b>${esc(m.newFoods.join(", "))}</b>. If your stomach reacts later, open this meal from History and mark it.</div>`:""}
+    ${m.durationSec?`<div class="card flat"><div class="field" style="border:none"><div><div class="fl">Meal length</div><div class="fh">Target is ${cfg.targetMin} minutes</div></div><div style="font-size:20px;font-weight:650">${fmtDur(m.durationSec)}</div></div></div>`:""}
+    <button class="btn" id="home">Done</button>`;
+  document.getElementById("home").onclick = () => { draft=null; tab="home"; render(); };
+}
+
+/* ---------- MEAL DETAIL (fully editable) ---------- */
+function toLocalInput(ts){
+  const d=new Date(ts - d0(ts));
+  return d.toISOString().slice(0,16);
+}
+function d0(ts){ return new Date(ts).getTimezoneOffset()*60000; }
+function fromLocalInput(str){
+  const t = new Date(str).getTime();
+  return isNaN(t) ? null : t;
+}
+
+function renderDetail(){
+  const m = meals.find(x=>x.id===detailId);
+  if(!m){ detailId=null; detailEdit=false; return render(); }
+  return detailEdit ? detailEditView(m) : detailOverview(m);
+}
+
+/* ---- read-only summary: the quick glance ---- */
+function detailOverview(m){
+  const tol = m.tolerance || {status:null,symptoms:[],note:""};
+  screen().innerHTML = `
+    <header class="top"><button class="back" id="back">‹ Back</button>
+      <span><span class="verdict ${isGood(m)?"g":"b"}">${isGood(m)?"counts":"missed"}</span>
+      <button class="editbtn" id="edit">Edit</button></span></header>
+
+    <div class="card">
+      <h3>${esc(fmtWhen(m.at))}</h3>
+      ${m.photo?`<img src="${m.photo}" style="width:100%;border-radius:11px;display:block;margin-bottom:14px" alt="">`:""}
+      ${SCALE_KEYS.map(k=>{
+        const v=m.scores?.[k];
+        if(typeof v!=="number") return "";
+        const tone=toneFor(k,v);
+        return `<div class="brk"><div class="row">
+          <span class="lab">${esc(SCALES[k].title)}<div class="tiny">${esc(SCALES[k].labels[v-1])}</div></span>
+          <span class="mark ${tone==="good"?"g":tone==="warn"?"w":"b"}" style="font-size:13px;padding:5px 10px">${v}/7</span>
+        </div></div>`;
+      }).join("")}
+      <div class="field" style="border-top:1px solid var(--line);margin-top:8px">
+        <div class="fl">Length</div><div>${m.durationSec?fmtDur(m.durationSec):"—"}</div></div>
+      <div class="field"><div class="fl">How you ate</div><div>${esc(companyLabel(m.company))}</div></div>
+      ${(m.foods||[]).length||(m.newFoods||[]).length?`
+        <div style="padding-top:12px"><div class="fl">Foods</div>
+        <div class="tags">
+          ${(m.foods||[]).map(f=>`<span class="tag">${esc(f)}</span>`).join("")}
+          ${(m.newFoods||[]).map(f=>`<span class="tag newf">new · ${esc(f)}</span>`).join("")}
+        </div></div>`:""}
+      ${m.note?`<div style="padding-top:14px"><div class="tiny">${esc(m.note)}</div></div>`:""}
+    </div>
+
+    <div class="card">
+      <h3>How did you tolerate it?</h3>
+      <p class="tiny" style="margin:-6px 0 12px">Symptoms often show up an hour or two later — come back and set this whenever they do.</p>
+      <div class="chips" id="tolstatus">
+        <button class="chip" data-v="ok"  data-sel="${tol.status==="ok"?1:0}">Felt fine</button>
+        <button class="chip bad" data-v="bad" data-sel="${tol.status==="bad"?1:0}">Didn't tolerate it</button>
+      </div>
+      <div id="symwrap" class="${tol.status==="bad"?"":"hidden"}" style="margin-top:18px">
+        <div class="fl" style="margin-bottom:9px">What did you feel?</div>
+        <div class="chips" id="symptoms">
+          ${SYMPTOMS.map(s=>`<button class="chip bad" data-v="${s.v}" data-sel="${(tol.symptoms||[]).includes(s.v)?1:0}">${esc(s.t)}</button>`).join("")}
+        </div>
+        <textarea id="tolnote" style="margin-top:12px" placeholder="Anything more — when it started, how long it lasted…">${esc(tol.note||"")}</textarea>
+      </div>
+    </div>
+
+    <button class="btn danger" id="del">Delete this meal</button>`;
+
+  document.getElementById("back").onclick = () => { detailId=null; render(); };
+  document.getElementById("edit").onclick = () => { detailEdit=true; window.scrollTo(0,0); render(); };
+  wireTolerance(m);
+  document.getElementById("del").onclick = async () => {
+    if(!confirm("Delete this meal? This can't be undone.")) return;
+    meals = meals.filter(x=>x.id!==m.id);
+    await persist(); detailId=null; detailEdit=false; toast("Meal deleted"); render();
+  };
+}
+
+/* ---- editable form, reached only via Edit ---- */
+function detailEditView(m){
+  const wasGood = isGood(m);
+  screen().innerHTML = `
+    <header class="top"><button class="back" id="back">‹ Overview</button>
+      <span class="verdict ${wasGood?"g":"b"}" id="verdict">${wasGood?"counts":"missed"}</span></header>
+
+    <div class="card">
+      <h3>Ratings</h3>
+      <div id="editsliders">
+        ${SCALE_KEYS.map(k=>sliderHtml(k, m.scores?.[k] ?? 4, typeof m.scores?.[k]==="number",
+          k==="portion" ? "Looking back, how much was actually on that plate? Tracked only — this never affects the streak." : undefined)).join("")}
+      </div>
+      <p class="tiny" style="margin:2px 0 0">Changes save as you make them. Correcting a rating downwards will break a streak you thought you had — that's intended.</p>
+    </div>
+
+    <div class="card">
+      <h3>Details</h3>
+      <div class="field"><div><div class="fl">When</div><div class="fh">Changing this re-orders your history</div></div>
+        <input type="datetime-local" id="edAt" value="${toLocalInput(m.at)}" style="background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px;font:inherit;font-size:14px;color:var(--text)"></div>
+      <div class="field"><div><div class="fl">Length</div><div class="fh">Minutes spent eating</div></div>
+        <input type="number" id="edDur" min="0" max="240" step="1" value="${m.durationSec?Math.round(m.durationSec/60):""}" placeholder="—" style="width:88px;text-align:right"></div>
+      <div style="padding:14px 0 4px">
+        <div class="fl" style="margin-bottom:9px">How you ate</div>
+        <div class="chips" id="edCompany">
+          ${COMPANY.map(o=>`<button class="chip" data-v="${o.v}" data-sel="${m.company===o.v?1:0}">${esc(o.t)}</button>`).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Foods</h3>
+      <input type="text" id="edFoods" placeholder="rice, chicken" value="${esc((m.foods||[]).join(", "))}">
+      <p class="tiny" style="margin:8px 0 16px">Comma separated.</p>
+      <div class="fl" style="margin-bottom:8px">New foods being tested</div>
+      <input type="text" id="edNew" placeholder="e.g. tomato sauce" value="${esc((m.newFoods||[]).join(", "))}">
+    </div>
+
+    <div class="card"><h3>Note</h3>
+      <textarea id="edNote" placeholder="How your stomach felt, what made it hard…">${esc(m.note||"")}</textarea></div>
+
+    <button class="btn" id="done">Done</button>`;
+
+  const badge = document.getElementById("verdict");
+  let lastGood = wasGood;
+  const refreshVerdict = () => {
+    const g = isGood(m);
+    badge.textContent = g ? "counts" : "missed";
+    badge.className = "verdict " + (g ? "g" : "b");
+    if(g !== lastGood){
+      lastGood = g;
+      toast(g ? `Now counts — streak is ${currentStreak()}` : `No longer counts — streak is ${currentStreak()}`);
+    }
+  };
+  const save = async () => { await persist(); refreshVerdict(); };
+  const leave = () => { detailEdit=false; window.scrollTo(0,0); render(); };
+
+  wireSliders(document.getElementById("editsliders"), async (k,v)=>{
+    m.scores = m.scores || {}; m.scores[k]=v; await save();
+  });
+  document.getElementById("back").onclick = leave;
+  document.getElementById("done").onclick = leave;
+
+  document.getElementById("edAt").onchange = async e => {
+    const t = fromLocalInput(e.target.value);
+    if(t===null){ toast("That date didn't parse"); e.target.value=toLocalInput(m.at); return; }
+    m.at=t; await persist(); toast("Moved to "+fmtWhen(t));
+  };
+  document.getElementById("edDur").onchange = async e => {
+    const n = e.target.value===""? null : Math.max(0, Math.min(240, Number(e.target.value)));
+    m.durationSec = (n===null||isNaN(n)) ? null : n*60;
+    await save(); toast("Saved");
+  };
+  screen().querySelectorAll("#edCompany .chip").forEach(b=>{
+    b.onclick = async () => {
+      const v=b.dataset.v, clearing = m.company===v;
+      screen().querySelectorAll("#edCompany .chip").forEach(x=>x.dataset.sel="0");
+      m.company = clearing ? null : v;
+      if(!clearing) b.dataset.sel="1";
+      await save();
+    };
+  });
+  document.getElementById("edFoods").onchange = async e => { m.foods=parseFoods(e.target.value); await save(); toast("Saved"); };
+  document.getElementById("edNew").onchange   = async e => { m.newFoods=parseFoods(e.target.value); await save(); toast("Saved"); };
+  document.getElementById("edNote").onchange  = async e => { m.note=e.target.value.trim(); await save(); };
+}
+
+function wireTolerance(m){
+  screen().querySelectorAll("#tolstatus .chip").forEach(b=>{
+    b.onclick = async () => {
+      const v=b.dataset.v;
+      m.tolerance = m.tolerance || {status:null,symptoms:[],note:""};
+      m.tolerance.status = (m.tolerance.status===v) ? null : v;
+      if(m.tolerance.status!=="bad"){ m.tolerance.symptoms=[]; m.tolerance.note=""; }
+      await persist(); render();
+    };
+  });
+  screen().querySelectorAll("#symptoms .chip").forEach(b=>{
+    b.onclick = async () => {
+      const v=b.dataset.v;
+      const list = m.tolerance.symptoms || (m.tolerance.symptoms=[]);
+      const i=list.indexOf(v);
+      if(i>=0) list.splice(i,1); else list.push(v);
+      b.dataset.sel = i>=0 ? "0":"1";
+      await persist();
+    };
+  });
+  const tn=document.getElementById("tolnote");
+  if(tn) tn.onchange = async () => { m.tolerance.note=tn.value.trim(); await persist(); toast("Saved"); };
+}
+
+/* ---------- HISTORY ---------- */
+function renderHistory(){
+  const list=sortedMeals().reverse();
+  screen().innerHTML = `
+    <header class="top"><h1>History</h1><span class="sub">${list.length} meal${list.length===1?"":"s"}</span></header>
+    ${list.length?`<div class="card">${list.map(mealRow).join("")}</div>
+        <p class="tiny" style="text-align:center">Tap any meal to correct its ratings, add symptoms, or delete it.</p>`
+      :`<div class="empty">No meals yet.<br>Your first one will show up here.</div>`}`;
+  wireMealRows();
+}
+
+/* ---------- PATTERNS ---------- */
+function renderStats(){
+  if(!meals.length){
+    screen().innerHTML=`<header class="top"><h1>Patterns</h1></header>
+      <div class="empty">Log a handful of meals and patterns will show up here — which habit trips you up, and which foods your stomach doesn't like.</div>`;
+    return;
+  }
+  const s=sortedMeals(), recent=s.slice(-20);
+  const bars=recent.map(m=>{
+    const vals=STREAK_KEYS.map(k=>m.scores?.[k]).filter(v=>typeof v==="number");
+    const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:1;
+    return `<div class="b ${isGood(m)?"ok":"no"}" style="height:${12+((avg-1)/6)*52}px"></div>`;
+  }).join("");
+
+  const brk=SCALE_KEYS.map(k=>{
+    const vals=s.map(m=>m.scores?.[k]).filter(v=>typeof v==="number");
+    if(!vals.length) return "";
+    const avg=(vals.reduce((a,b)=>a+b,0)/vals.length);
+    const pct=Math.round((avg-1)/6*100);
+    const tail=SCALES[k].scored?"":" <span class='tiny'>(not in streak)</span>";
+    return `<div class="row"><span class="lab">${esc(SCALES[k].title)}${tail}</span>
+      <span class="track2"><span class="fill" style="width:${pct}%"></span></span>
+      <span class="pc">${avg.toFixed(1)}</span></div>`;
+  }).join("");
+
+  const groups = COMPANY.map(o=>{
+    const sub=s.filter(m=>m.company===o.v);
+    return sub.length ? {t:o.t, n:sub.length, pct:Math.round(sub.filter(isGood).length/sub.length*100)} : null;
+  }).filter(Boolean);
+  let companyBlock;
+  if(groups.length>=2){
+    const best=[...groups].sort((a,b)=>b.pct-a.pct)[0], worst=[...groups].sort((a,b)=>a.pct-b.pct)[0];
+    const insight = (best.pct-worst.pct)<12
+      ? "How you ate doesn't seem to change much — the difficulty is elsewhere."
+      : `Your meals go best ${best.t.toLowerCase()} and worst ${worst.t.toLowerCase()}. That's the situation worth planning around.`;
+    companyBlock=`<div class="card"><h3>How you ate</h3><div class="brk">
+      ${groups.map(g=>`<div class="row"><span class="lab">${esc(g.t)} <span class="tiny">(${g.n})</span></span>
+        <span class="track2"><span class="fill" style="width:${g.pct}%"></span></span><span class="pc">${g.pct}%</span></div>`).join("")}
+      </div><p class="tiny" style="margin:10px 0 0">${esc(insight)}</p></div>`;
+  } else {
+    companyBlock=`<div class="card"><h3>How you ate</h3><p class="tiny" style="margin:0">Once you've logged meals in more than one of the three situations, the comparison shows up here.</p></div>`;
+  }
+
+  // ---- foods ----
+  const fs=[...foodStats().values()];
+  const newFoods=fs.filter(f=>f.isNew).sort((a,b)=>b.lastAt-a.lastAt);
+  const suspects=fs.filter(f=>f.bad>0).sort((a,b)=> (b.bad/b.meals)-(a.bad/a.meals) || b.bad-a.bad).slice(0,8);
+  const symCount={};
+  for(const m of meals) for(const sy of (m.tolerance?.symptoms||[])) symCount[sy]=(symCount[sy]||0)+1;
+  const symRows=SYMPTOMS.filter(x=>symCount[x.v]).sort((a,b)=>symCount[b.v]-symCount[a.v])
+    .map(x=>`<span class="mark b" style="font-size:12px;padding:5px 10px">${esc(x.t)} · ${symCount[x.v]}</span>`).join("");
+
+  const nBad=meals.filter(hasSymptoms).length, nLogged=toleranceLogged();
+
+  let foodBlock="";
+  if(fs.length||nLogged){
+    foodBlock = `
+      <div class="card"><h3>Foods &amp; tolerance</h3>
+        ${nLogged?`<p class="tiny" style="margin:-6px 0 12px">${nBad} of ${nLogged} meals you've rated caused symptoms.</p>`
+                 :`<p class="tiny" style="margin:-6px 0 12px">You haven't marked tolerance on any meal yet — tap a meal in History to do that.</p>`}
+        ${symRows?`<div class="marks" style="margin-bottom:16px">${symRows}</div>`:""}
+        ${newFoods.length?`<div class="fl" style="font-size:15px;margin-bottom:8px">New foods you're testing</div>
+          <div class="brk">${newFoods.slice(0,8).map(f=>`
+            <div class="row"><span class="lab">${esc(f.name)}<div class="tiny">${f.meals} meal${f.meals===1?"":"s"}${f.bad?` · ${f.bad} with symptoms`:" · no symptoms so far"}</div></span>
+            <span class="mark ${f.bad?"b":"g"}">${f.bad?"suspect":"ok so far"}</span></div>`).join("")}</div>`:""}
+        ${suspects.length?`<div class="fl" style="font-size:15px;margin:16px 0 8px">Most often followed by symptoms</div>
+          <div class="brk">${suspects.map(f=>{
+            const pct=Math.round(f.bad/f.meals*100);
+            return `<div class="row"><span class="lab">${esc(f.name)}<div class="tiny">${f.bad} of ${f.meals} meal${f.meals===1?"":"s"}</div></span>
+              <span class="track2"><span class="fill warnf" style="width:${pct}%"></span></span><span class="pc">${pct}%</span></div>`;
+          }).join("")}</div>
+          <p class="tiny" style="margin:10px 0 0">Correlation only, and small numbers mislead. Treat this as a shortlist to test deliberately, not a verdict.</p>`:""}
+      </div>`;
+  }
+
+  const durs=s.map(m=>m.durationSec).filter(Boolean);
+  const avgDur=durs.length?Math.round(durs.reduce((a,b)=>a+b,0)/durs.length/60):null;
+  const weakest=STREAK_KEYS.map(k=>{
+    const vals=s.map(m=>m.scores?.[k]).filter(v=>typeof v==="number");
+    return {k, pct: vals.length? vals.filter(v=>v>=cfg.threshold).length/vals.length : 1};
+  }).sort((a,b)=>a.pct-b.pct)[0];
+
+  screen().innerHTML = `
+    <header class="top"><h1>Patterns</h1></header>
+    <div class="stats">
+      <div class="stat"><div class="v">${Math.round(s.filter(isGood).length/s.length*100)}%</div><div class="k">meals that count</div></div>
+      <div class="stat"><div class="v">${avgDur===null?"—":avgDur+"m"}</div><div class="k">avg meal length</div></div>
+      <div class="stat"><div class="v">${bestStreak()}</div><div class="k">best streak</div></div>
+    </div>
+    <div class="card"><h3>Last ${recent.length} meals</h3><div class="bars">${bars}</div>
+      <p class="tiny" style="margin:10px 0 0">Height is your average of stopping and pace. Green bars kept the streak alive.</p></div>
+    <div class="card"><h3>Average score out of 7</h3><div class="brk">${brk}</div>
+      <p class="tiny" style="margin:10px 0 0">Your weaker of the two streak habits is <b>${esc(SCALES[weakest.k].title.toLowerCase())}</b>.</p></div>
+    ${foodBlock}
+    ${companyBlock}`;
+}
+
+/* ---------- SETTINGS ---------- */
+function renderSettings(){
+  screen().innerHTML = `
+    <header class="top"><h1>Settings</h1></header>
+    <div class="card"><h3>The meal</h3>
+      <div class="field"><div><div class="fl">Target meal length</div><div class="fh">The timer aims for this.</div></div>
+        <select id="target">${[10,15,20,25,30,35,40].map(v=>`<option value="${v}" ${cfg.targetMin===v?"selected":""}>${v} min</option>`).join("")}</select></div>
+      <div class="field"><div><div class="fl">Streak threshold</div><div class="fh">Stopping when full and pace must both reach this. Portion is tracked but never breaks the streak.</div></div>
+        <select id="thr">${[4,5,6].map(v=>`<option value="${v}" ${cfg.threshold===v?"selected":""}>${v} of 7</option>`).join("")}</select></div>
+      <div class="field"><div><div class="fl">Setup reminder screen</div><div class="fh">The four rules before you start. Turn off to go straight from the photo to eating.</div></div>
+        <select id="setupToggle">
+          <option value="1" ${cfg.showSetup?"selected":""}>Show</option>
+          <option value="0" ${cfg.showSetup?"":"selected"}>Skip</option>
+        </select></div>
+    </div>
+    <div class="card"><h3>Your data</h3>
+      <p class="tiny" style="margin:0 0 12px">Everything lives in this browser on this device — nothing is sent anywhere. Clearing browser data would erase it, so export a backup now and then.</p>
+      <div class="btn-row"><button class="btn ghost" id="expJson">Export JSON</button><button class="btn ghost" id="expCsv">Export CSV</button></div>
+      <button class="btn ghost" id="impBtn" style="margin-top:10px">Import a backup</button>
+      <input type="file" id="impFile" accept="application/json,.json" class="hidden">
+      <button class="btn danger" id="wipe" style="margin-top:10px">Delete everything</button>
+      <p class="tiny" style="margin:12px 0 0">Storage in use: ${Store.mode==="idb"?"IndexedDB":Store.mode==="local"?"localStorage":"memory only (nothing survives a reload)"}.</p>
+    </div>
+    <div class="card"><h3>Keeping it handy</h3>
+      <p class="tiny" style="margin:0">Browser menu → <b>Add to Home screen</b> so this opens like an app and works offline. For the pre-meal nudge, a repeating phone alarm labelled "photo, then slow" is more reliable than a browser notification.</p></div>`;
+
+  document.getElementById("target").onchange = async e => { cfg.targetMin=Number(e.target.value); await persist(); toast("Saved"); };
+  document.getElementById("thr").onchange = async e => { cfg.threshold=Number(e.target.value); await persist(); toast("Saved"); render(); };
+  document.getElementById("setupToggle").onchange = async e => { cfg.showSetup = e.target.value==="1"; await persist(); toast("Saved"); };
+  document.getElementById("expJson").onclick = () => download("mindful-meals-backup.json", JSON.stringify({version:2, exportedAt:new Date().toISOString(), cfg, meals}, null, 2), "application/json");
+  document.getElementById("expCsv").onclick = () => download("mindful-meals.csv", toCsv(), "text/csv");
+  document.getElementById("impBtn").onclick = () => document.getElementById("impFile").click();
+  document.getElementById("impFile").onchange = e => {
+    const f=e.target.files&&e.target.files[0]; if(!f) return;
+    const fr=new FileReader();
+    fr.onload = async () => {
+      try{
+        const data=JSON.parse(fr.result);
+        if(!Array.isArray(data.meals)) throw new Error("no meals");
+        const have=new Set(meals.map(m=>m.id));
+        const added=data.meals.filter(m=>m&&m.id&&!have.has(m.id)).map(migrate);
+        meals=meals.concat(added);
+        if(data.cfg) cfg={...cfg,...data.cfg};
+        await persist(); toast(`Imported ${added.length} meal${added.length===1?"":"s"}`); render();
+      }catch(err){ toast("That file didn't look like a backup"); }
+    };
+    fr.readAsText(f);
+  };
+  document.getElementById("wipe").onclick = async () => {
+    if(!confirm("Delete every logged meal and reset the streak? Export a backup first if you want to keep it.")) return;
+    meals=[]; await persist(); toast("All data deleted"); render();
+  };
+}
+
+function toCsv(){
+  const head=["date","time","portion_7","stopped_when_full_7","pace_7","counts_toward_streak","minutes","company","foods","new_foods","tolerated","symptoms","note"];
+  const rows=sortedMeals().map(m=>{
+    const d=new Date(m.at), t=m.tolerance||{};
+    return [
+      d.toISOString().slice(0,10), d.toTimeString().slice(0,5),
+      m.scores?.portion ?? "", m.scores?.fullness ?? "", m.scores?.chewing ?? "",
+      isGood(m)?"yes":"no",
+      m.durationSec?Math.round(m.durationSec/60):"",
+      m.company ?? "",
+      (m.foods||[]).join("; "), (m.newFoods||[]).join("; "),
+      t.status==="bad"?"no":t.status==="ok"?"yes":"",
+      (t.symptoms||[]).join("; "),
+      (m.note||"")
+    ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",");
+  });
+  return [head.join(","),...rows].join("\n");
+}
+function download(name,text,type){
+  const blob=new Blob([text],{type}), url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},1500);
+}
+
+/* ============================================================
+   MIGRATION  (old 0–2 ratings → 7-point scale)
+   ============================================================ */
+function migrate(m){
+  if(!m || m.v===2) return normalise(m);
+  const P={0:6,1:5,2:3}, F={0:2,1:5,2:7}, C={0:2,1:4,2:6};
+  const s=m.scores||{}, out={};
+  if(typeof s.portion==="number")  out.portion  = P[s.portion]  ?? 4;
+  if(typeof s.fullness==="number") out.fullness = F[s.fullness] ?? 4;
+  if(typeof s.chewing==="number")  out.chewing  = C[s.chewing]  ?? 4;
+  return normalise({...m, v:2, scores:out});
+}
+function normalise(m){
+  if(!m) return m;
+  const out = { foods:[], newFoods:[], ...m,
+                tolerance:{status:null, symptoms:[], note:"", ...(m.tolerance||{})} };
+  if(out.company==="alone") out.company="focused";   // old two-way option
+  return out;
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+async function persist(){ await Store.set("meals", meals); await Store.set("cfg", cfg); }
+
+async function boot(){
+  await Store.init();
+  const m=await Store.get("meals"), c=await Store.get("cfg");
+  if(Array.isArray(m)) meals=m.map(migrate);
+  if(c && typeof c==="object"){
+    cfg={...DEFAULTS,...c};
+    if(![4,5,6].includes(cfg.threshold)) cfg.threshold=DEFAULTS.threshold; // old 1/2 thresholds
+  }
+  document.querySelectorAll("nav.tabs button").forEach(b=>{
+    b.onclick = () => { tab=b.dataset.tab; detailId=null; window.scrollTo(0,0); render(); };
+  });
+  window.addEventListener("beforeunload", e => {
+    if(draft && draft.step==="timer"){ e.preventDefault(); e.returnValue=""; }
+  });
+  render();
+}
+window.addEventListener("error", () => { try{ toast("Something went wrong"); }catch(_){} });
+boot();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>

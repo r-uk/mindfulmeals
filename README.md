@@ -118,3 +118,7 @@ a work profile / isolated user you don't want online.
 - Nothing in this app phones home. If you're auditing it: search the source
   for `fetch`, `XMLHttpRequest`, or `<script src=` pointing off-device —
   there are none.
+
+## Acknowledgement
+
+- This web app was written by flowcoding using Claude

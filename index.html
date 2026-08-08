@@ -597,7 +597,6 @@ function stepPhoto(dots){
     <div class="card">
       <div class="sl" style="margin-bottom:14px">
         <div class="st">Photograph the plate</div>
-        <div class="sh">Not for the record — so you actually look at the portion before the first bite.</div>
       </div>
       <label class="photo-well" id="well" for="file">
         ${draft.photo?`<img src="${draft.photo}" alt="Your plate">`:`<div class="ic">📷</div><div>Tap to open the camera</div>`}
@@ -1099,9 +1098,7 @@ function renderSettings(){
       <input type="file" id="impFile" accept="application/json,.json" class="hidden">
       <button class="btn danger" id="wipe" style="margin-top:10px">Delete everything</button>
       <p class="tiny" style="margin:12px 0 0">Storage in use: ${Store.mode==="idb"?"IndexedDB":Store.mode==="local"?"localStorage":"memory only (nothing survives a reload)"}.</p>
-    </div>
-    <div class="card"><h3>Keeping it handy</h3>
-      <p class="tiny" style="margin:0">Browser menu → <b>Add to Home screen</b> so this opens like an app and works offline. For the pre-meal nudge, a repeating phone alarm labelled "photo, then slow" is more reliable than a browser notification.</p></div>`;
+    </div>`;
 
   document.getElementById("target").onchange = async e => { cfg.targetMin=Number(e.target.value); await persist(); toast("Saved"); };
   document.getElementById("thr").onchange = async e => { cfg.threshold=Number(e.target.value); await persist(); toast("Saved"); render(); };

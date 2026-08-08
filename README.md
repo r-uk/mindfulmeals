@@ -12,10 +12,10 @@ and how well you chewed. Everything is tracked locally to build a streak.
     <td><img src="pics/4.png" width="200"/></td>
   </tr>
   <tr>
-    <td align="center">Caption 1</td>
-    <td align="center">Caption 2</td>
-    <td align="center">Caption 3</td>
-    <td align="center">Caption 3</td>
+    <td align="center">Mainpage</td>
+    <td align="center">Meal timer</td>
+    <td align="center">Meal data</td>
+    <td align="center">Pattern overview</td>
   </tr>
 </table>
 
